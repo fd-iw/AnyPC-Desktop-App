@@ -1,0 +1,54 @@
+name: Build Windows app
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test tests/AnyPC.Core.Tests -c Release --logger "console;verbosity=normal"
+
+      - name: Publish single-file exe
+        run: dotnet publish src/AnyPC.Windows/AnyPC.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME.TrimStart('v') } else { '1.0.0' }
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$version" "/DSourceDir=..\publish" installer\AnyPC.iss
+          Copy-Item publish\AnyPC.exe out\AnyPC-Portable.exe
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AnyPC-Windows
+          path: |
+            out/AnyPC-Setup.exe
+            out/AnyPC-Portable.exe
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/AnyPC-Setup.exe
+            out/AnyPC-Portable.exe
