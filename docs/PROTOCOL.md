@@ -85,7 +85,7 @@ At most 2 frames are un-acked at any time. Frames are only sent when the screen 
 | direction | message |
 |-----------|---------|
 | C→S | `{"t":"fs_list","id":1,"path":""}` — empty path lists drives |
-| S→C | `{"t":"fs_list","id":1,"path":"C:\\","parent":"","entries":[{"n":"Users","d":true,"s":0,"m":1700000000}]}` |
+| S→C | `{"t":"fs_list","id":1,"path":"C:\\","parent":"","entries":[{"n":"Users","p":"C:\\Users","d":true,"s":0,"m":1700000000}]}` — `p` is the full path to request next |
 | C→S | `{"t":"fs_get","id":2,"path":"C:\\a.txt"}` |
 | S→C | `{"t":"fs_meta","id":2,"name":"a.txt","size":123}` then binary `0x02` chunks then `{"t":"fs_done","id":2}` |
 | C→S | `{"t":"fs_put","id":3,"dir":"C:\\Users\\me\\Downloads","name":"photo.jpg","size":1234}` |

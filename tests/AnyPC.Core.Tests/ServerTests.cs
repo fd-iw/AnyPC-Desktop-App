@@ -167,7 +167,7 @@ public sealed class ServerTests : IAsyncLifetime
 
         await c.SendAsync(new { t = "fs_list", id = 1, path = _dir });
         var list = await c.WaitForAsync("fs_list");
-        Assert.Contains(list.GetProperty("entries").EnumerateArray(), e => e.GetProperty("n").GetString() == "big.txt" && e.GetProperty("s").GetInt64() == content.Length);
+        Assert.Contains(list.GetProperty("entries").EnumerateArray(), e => e.GetProperty("n").GetString() == "big.txt" && e.GetProperty("s").GetInt64() == content.Length && e.GetProperty("p").GetString() == src);
 
         // Download
         await c.SendAsync(new { t = "fs_get", id = 2, path = src });

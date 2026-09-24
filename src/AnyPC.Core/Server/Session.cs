@@ -457,7 +457,7 @@ internal sealed class Session
                 id,
                 path = listing.Path,
                 parent = listing.Parent,
-                entries = listing.Entries.Select(e => new { n = e.Name, d = e.IsDirectory, s = e.Size, m = e.ModifiedUnix }),
+                entries = listing.Entries.Select(e => new { n = e.Name, p = listing.Path.Length == 0 ? e.Name : System.IO.Path.Combine(listing.Path, e.Name), d = e.IsDirectory, s = e.Size, m = e.ModifiedUnix }),
             });
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException)
